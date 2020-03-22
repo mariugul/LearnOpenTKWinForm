@@ -32,24 +32,19 @@ namespace OpenTKManualWinForm
         private int VertexArrayObject;
         private int ElementBufferObject;
 
-        // Vertices
-        float[] verticesTriangle =
-        {
-           -0.5f, -0.5f, 0.0f, //Bottom-left vertex
-            0.5f, -0.5f, 0.0f, //Bottom-right vertex
-           -0.5f,  0.5f, 0.0f  //Top vertex
-        };
-
-        float[] vertices = {
+        // Vertices and indices
+        private readonly float[] 
+        vertices = {
              0.5f,  0.5f, 0.0f,  // top right
              0.5f, -0.5f, 0.0f,  // bottom right
             -0.5f, -0.5f, 0.0f,  // bottom left
             -0.5f,  0.5f, 0.0f   // top left
         };
 
-        uint[] indices = {  // note that we start from 0!
-            0, 1, 3,        // first triangle
-            1, 2, 3         // second triangle
+        private readonly uint[] 
+        indices = {     // note that we start from 0!
+            0, 1, 3,    // first triangle
+            1, 2, 3     // second triangle
         };          
 
         // Instantiate objects
@@ -82,32 +77,31 @@ namespace OpenTKManualWinForm
         //------------------------------------------------------
         private void glControl1_Load(object sender, EventArgs e)
         {
-            VertexBufferObject  = GL.GenBuffer();
-            VertexArrayObject   = GL.GenVertexArray();
-            ElementBufferObject = GL.GenBuffer();
-            shader = new Shader("C:/Users/Mariu/source/repos/OpenTKManualWinForm/OpenTKManualWinForm/Shaders/shader.vert", "C:/Users/Mariu/source/repos/OpenTKManualWinForm/OpenTKManualWinForm/Shaders/shader.frag");
-            shader.Use();
-
             GL.ClearColor(Color.DarkCyan);
             SetupViewport();
 
-            /*ElementBuffer test*/
+            shader = new Shader("C:/Users/Mariu/source/repos/OpenTKManualWinForm/OpenTKManualWinForm/Shaders/shader.vert", "C:/Users/Mariu/source/repos/OpenTKManualWinForm/OpenTKManualWinForm/Shaders/shader.frag");
+            shader.Use();
+            
+            // Set up vertex buffer
+            VertexBufferObject  = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
+
+            // Set up element buffer
+            ElementBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
             GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StaticDraw);
-            
-            /********************/
 
-            // Initialization code
-            // 1. Bind vertex array object       
-            //GL.BindVertexArray(VertexArrayObject);
-
-            // 2. copy our vertices array in a buffer for OpenGL to use
-            //GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
-            //GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
-            
-            // 3. then set our vertex attributes pointers
-            //GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
-            //GL.EnableVertexAttribArray(0);
+            // Set up vertex array buffer
+            VertexArrayObject = GL.GenVertexArray();
+            GL.BindVertexArray(VertexArrayObject);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
+                        
+            // Set vertex attributes pointers
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+            GL.EnableVertexAttribArray(0);
             
             glLoaded = true;
         }
@@ -118,15 +112,9 @@ namespace OpenTKManualWinForm
                 return;
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            shader.Use();
 
-            // Bind the shader
-            //shader.Use();
-
-            // Bind the VAO
-            //GL.BindVertexArray(VertexArrayObject);
-
-            // Call draw function
-            // GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
+            GL.BindVertexArray(VertexArrayObject);
             GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
 
             /*
