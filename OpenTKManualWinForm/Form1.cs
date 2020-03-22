@@ -13,6 +13,7 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using System.Reflection;
 
+
 namespace OpenTKManualWinForm
 {
     
@@ -112,8 +113,8 @@ namespace OpenTKManualWinForm
                 return;
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            
             shader.Use();
-
             GL.BindVertexArray(VertexArrayObject);
             GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
 
