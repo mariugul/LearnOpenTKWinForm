@@ -12,7 +12,7 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using System.Reflection;
-
+using LearnOpenTKWinForm;
 
 namespace OpenTKManualWinForm
 {
@@ -34,16 +34,17 @@ namespace OpenTKManualWinForm
         private int ElementBufferObject;
 
         // Vertices and indices
-        private readonly float[] 
-        vertices = {
-             0.5f,  0.5f, 0.0f,  // top right
-             0.5f, -0.5f, 0.0f,  // bottom right
-            -0.5f, -0.5f, 0.0f,  // bottom left
-            -0.5f,  0.5f, 0.0f   // top left
+        private readonly float[] vertices = 
+        {
+            //Position          Texture coordinates
+             0.5f,  0.5f, 0.0f, 1.0f, 1.0f, // top right
+             0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // bottom right
+            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // bottom left
+            -0.5f,  0.5f, 0.0f, 0.0f, 1.0f  // top left
         };
 
-        private readonly uint[] 
-        indices = {     // note that we start from 0!
+        private readonly uint[] indices = 
+        {               // note that we start from 0!
             0, 1, 3,    // first triangle
             1, 2, 3     // second triangle
         };          
@@ -51,6 +52,7 @@ namespace OpenTKManualWinForm
         // Instantiate objects
         //------------------------------------------------------
         private Shader shader;
+        private Texture texture;
 
         // Constructor
         //------------------------------------------------------
@@ -83,7 +85,10 @@ namespace OpenTKManualWinForm
 
             shader = new Shader("C:/Users/Mariu/source/repos/OpenTKManualWinForm/OpenTKManualWinForm/Shaders/shader.vert", "C:/Users/Mariu/source/repos/OpenTKManualWinForm/OpenTKManualWinForm/Shaders/shader.frag");
             shader.Use();
-            
+
+            texture = new Texture("Images/crate.png");
+            texture.Use();
+    
             // Set up vertex buffer
             VertexBufferObject  = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
@@ -99,10 +104,15 @@ namespace OpenTKManualWinForm
             GL.BindVertexArray(VertexArrayObject);
             GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
-                        
+
+            var vertexLocation = shader.GetAttribLocation("aPosition");
+            GL.EnableVertexAttribArray(vertexLocation);
+            GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
+
             // Set vertex attributes pointers
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
-            GL.EnableVertexAttribArray(0);
+            var texCoordLocation = shader.GetAttribLocation("aTexCoord");
+            GL.EnableVertexAttribArray(texCoordLocation);
+            GL.VertexAttribPointer(texCoordLocation, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
             
             glLoaded = true;
         }
